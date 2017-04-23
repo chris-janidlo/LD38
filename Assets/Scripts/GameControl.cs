@@ -1,19 +1,26 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class GameControl : MonoBehaviour {
 
 	public Dictionary<Vector2, TileController> tiles; //map positions to tiles
 	public Texture2D TileAtlas;
+	public Texture2D LetterAtlas;
 	public Sprite[] TileSprites;
+	public Sprite[] LetterSprites;
+	public List<int> CurrentLetters;
 
 	private GameObject TilePrefab;
 
 	// Use this for initialization
 	void Start () {
+		IEnumerable<int> enumerable = Enumerable.Range(0, 25);
+		CurrentLetters = enumerable.ToList();
 		tiles = new Dictionary<Vector2, TileController> ();
 		TileSprites = Resources.LoadAll<Sprite> (TileAtlas.name);
+		LetterSprites = Resources.LoadAll<Sprite> (LetterAtlas.name);
 		TilePrefab = (GameObject) Resources.Load ("Tile");
 
 		CreateTile (Vector2.zero, 6);
@@ -24,10 +31,20 @@ public class GameControl : MonoBehaviour {
 		
 	}
 
-	void CreateTile (Vector2 position, int n) {
-		TileController tile = Instantiate (TilePrefab).GetComponent<TileController>();
-		tile.Initialize (position, 0);
-		tiles.Add (position, tile);
+	//choose a letter for the Tile at this position
+	public Sprite AssignLetter (Vector2 position) {
+		int choice = Random.Range (0, CurrentLetters.Count);
+		Sprite spr = LetterSprites [CurrentLetters[choice]];
+		CurrentLetters.RemoveAt (choice);
+		return spr;
+	}
+
+	public void CreateTile (Vector2 position, int n) {
+		if (CurrentLetters.Count > 0) {
+			TileController tile = Instantiate (TilePrefab).GetComponent<TileController>();
+			tiles.Add (position, tile);
+			tile.Initialize (position, n);
+		}
 	}
 
 	public TileController GetTileAtPosition (Vector2 position) {
