@@ -95,7 +95,7 @@ public class TileController : MonoBehaviour {
 			int discard = Random.Range (0, neighbors.Count);
 			neighbors.RemoveAt (discard);
 		}
-		//Debug.Log (neighbors);
+		neighbors = Shuffle (neighbors);
 		//then make a new tile for each spot that's still open
 		foreach (Vector2 pos in neighbors) {
 			//first check to see if one of your child branches already took this spot
@@ -103,6 +103,20 @@ public class TileController : MonoBehaviour {
 				MainControlScript.CreateTile (pos, n - 1);
 		}
 
+	}
+
+	//fisher-yates shuffle a list of Vector2s. one-off utility function for MakeBranches
+	List<Vector2> Shuffle(List<Vector2> unshuffled) {
+		int j;
+		Vector2 temp;
+		List<Vector2> a = new List<Vector2> (unshuffled);
+		for (int i = a.Count - 1; i > 1; i--) {
+			j = Random.Range (0, i);
+			temp = a [j];
+			a [j] = a [i];
+			a [i] = temp;
+		}
+		return a;
 	}
 
 }

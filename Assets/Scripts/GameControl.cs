@@ -11,6 +11,7 @@ public class GameControl : MonoBehaviour {
 	public Sprite[] TileSprites;
 	public Sprite[] LetterSprites;
 	public List<int> CurrentLetters;
+	public int GenerationSeed = 8;
 
 	private GameObject TilePrefab;
 
@@ -23,7 +24,9 @@ public class GameControl : MonoBehaviour {
 		LetterSprites = Resources.LoadAll<Sprite> (LetterAtlas.name);
 		TilePrefab = (GameObject) Resources.Load ("Tile");
 
-		CreateTile (Vector2.zero, 6);
+		CreateTile (Vector2.zero, GenerationSeed);
+		//once generation is done, recenter the camera
+		CenterCamera ();
 	}
 	
 	// Update is called once per frame
@@ -89,5 +92,17 @@ public class GameControl : MonoBehaviour {
 			return TileSprites [14];
 		else //if (!north && !east && !south && !west)
 			return TileSprites [1];
+	}
+
+	//center the camera over the average position of the tiles
+	void CenterCamera () {
+		float x = 0, y = 0, count = 0;
+		foreach (KeyValuePair<Vector2, TileController> entry in tiles) {
+			x += entry.Key.x;
+			y += entry.Key.y;
+			count++;
+		}
+		//the camera is a child of the object this script is attached to, so we can just move the transform
+		transform.position = new Vector3 (x / count, y / count);
 	}
 }
