@@ -20,6 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4446955652271342}
   - component: {fileID: 212881339193034164}
+  - component: {fileID: 95155959392541646}
   m_Layer: 0
   m_Name: PlayerPart
   m_TagString: Untagged
@@ -130,6 +131,23 @@ Transform:
   m_Father: {fileID: 4257379331600378}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &95155959392541646
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1490598647098666}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 2ad990bbf899141f89bbb0009b52cf5c, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
 --- !u!114 &114124916648970080
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -141,12 +159,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7d2a3641e438422f8d85211876d79d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MainControlScript: {fileID: 0}
-  position: {x: 0, y: 0}
   m_northTile: {fileID: 0}
   m_eastTile: {fileID: 0}
   m_southTile: {fileID: 0}
   m_westTile: {fileID: 0}
+  m_playerHere: 0
+  position: {x: 0, y: 0}
+  playerAnim: {fileID: 0}
 --- !u!212 &212254401360533566
 SpriteRenderer:
   m_ObjectHideFlags: 1

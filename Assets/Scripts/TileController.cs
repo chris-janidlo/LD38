@@ -9,12 +9,16 @@ public class TileController : MonoBehaviour {
 	public TileController m_eastTile;
 	public TileController m_southTile;
 	public TileController m_westTile;
+	public bool m_playerHere;
+	public Vector2 position;
+	public Animator playerAnim;
 
-	private Vector2 position;
 	private SpriteRenderer spriteR;
-	private GameObject letter;
+	private GameObject letterPart;
 	private GameObject playerPart;
-	private GameObject enemy;
+	private GameObject enemyPart;
+	private int letter;
+	private string letterS;
 
 	public void Initialize (Vector2 position, int n) {
 		MainControlScript = GameObject.Find ("GameController").GetComponent<GameControl> ();
@@ -23,12 +27,17 @@ public class TileController : MonoBehaviour {
 		this.position = position;
 		gameObject.name = "Tile" + position.ToString ();
 
-		spriteR = gameObject.GetComponent<SpriteRenderer> ();
-		letter = transform.Find ("Letter").gameObject;
+		letterPart = transform.Find ("Letter").gameObject;
 		playerPart = transform.Find ("PlayerPart").gameObject;
-		enemy = transform.Find ("Enemy").gameObject;
-		letter.GetComponent<SpriteRenderer>().sprite = MainControlScript.AssignLetter (position);
+		enemyPart = transform.Find ("Enemy").gameObject;
+		spriteR = gameObject.GetComponent<SpriteRenderer> ();
+		playerAnim = playerPart.GetComponent<Animator> ();
 
+		letter = MainControlScript.AssignLetter (position);
+		letterPart.GetComponent<SpriteRenderer> ().sprite = MainControlScript.LetterSprites [letter];
+		letterS = ((char)(letter + "a"[0])).ToString();
+		Debug.Log (letterS);
+			
 		m_northTile = null;
      	m_eastTile = null;
 		m_southTile = null;
@@ -41,6 +50,7 @@ public class TileController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		PlayerControl ();
 		CheckSurroundings ();
 	}
 
@@ -119,4 +129,21 @@ public class TileController : MonoBehaviour {
 		return a;
 	}
 
+	void PlayerControl () {
+		if (MainControlScript.IsDamaged())
+			return;
+		if (Input.GetKeyDown (letterS)) {
+			//when the player initially occupies a tile
+			//playerAnim.SetBool ("exists", true);
+			MainControlScript.AddToPlayer (position);
+		} else if (Input.GetKey(letterS)) {
+			//while the player holds down on a tile
+		} else if (Input.GetKeyUp(letterS)) {
+			//when the player releases from a tile
+			playerAnim.SetBool ("exists", false);
+			MainControlScript.Damage ();
+		}
+	}
+
+	
 }

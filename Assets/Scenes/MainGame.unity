@@ -141,6 +141,13 @@ MonoBehaviour:
   LetterSprites: []
   CurrentLetters: 
   GenerationSeed: 8
+  PlayerEndOnePos: {x: 0, y: 0}
+  PlayerEndTwoPos: {x: 0, y: 0}
+  Null: {x: 100, y: 100}
+  ShakeTime: 0.5
+  ShakeAmount: 1
+  CameraZ: -10
+  IFrameTime: 0.02
 --- !u!4 &1014845361
 Transform:
   m_ObjectHideFlags: 0
