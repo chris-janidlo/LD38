@@ -69,6 +69,8 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4062819747267852}
+  - component: {fileID: 212234930468021664}
+  - component: {fileID: 95386618220507188}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -140,7 +142,24 @@ Animator:
   m_GameObject: {fileID: 1490598647098666}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 2ad990bbf899141f89bbb0009b52cf5c, type: 2}
+  m_Controller: {fileID: 9100000, guid: 1c2bdb5fa8d904d3a85b82f8155d5d38, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+--- !u!95 &95386618220507188
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1767578842364686}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: eacb4764327b64bacbdf57cd303d23a2, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -163,9 +182,51 @@ MonoBehaviour:
   m_eastTile: {fileID: 0}
   m_southTile: {fileID: 0}
   m_westTile: {fileID: 0}
-  m_playerHere: 0
-  position: {x: 0, y: 0}
-  playerAnim: {fileID: 0}
+  m_position: {x: 0, y: 0}
+  m_playerAnim: {fileID: 0}
+  DoorChance: 0.5
+  HealChance: 0.1
+  ReplaceChance: 0.2
+--- !u!212 &212234930468021664
+SpriteRenderer:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1767578842364686}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: -593283243
+  m_SortingLayer: 3
+  m_SortingOrder: 0
+  m_Sprite: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
 --- !u!212 &212254401360533566
 SpriteRenderer:
   m_ObjectHideFlags: 1

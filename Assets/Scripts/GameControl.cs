@@ -14,11 +14,13 @@ public class GameControl : MonoBehaviour {
 	public int GenerationSeed = 8;
 	public Vector2 PlayerEndOnePos;
 	public Vector2 PlayerEndTwoPos;
-	public Vector2 Null = new Vector2 (100, 100); //some dummy value we don't expect to run in to when testing for nullity
+	public Vector2 StartPos;
+	public Vector2 Null = new Vector2 (10000, 10000); //some dummy value we don't expect to run in to when testing for nullity
 	public float ShakeTime = 0.5f; //how long to screen shake
 	public float ShakeAmount = 1.0f; //how far away from center the screen will shake at max
 	public float CameraZ = -10.0f;
 	public float IFrameTime = 1.0f; //time after taking damage when you are invincible
+	public bool ExitExists;
 
 	private GameObject TilePrefab;
 	private Camera cam;
@@ -26,10 +28,10 @@ public class GameControl : MonoBehaviour {
 	private float shakeCount = 0.0f;
 	private Vector3 center; //where the camera was most recently centered
 	private bool centered; //whether or not the camera is already centered
-	private bool damaged; //in a damaged state where you need to release all buttons before pressing any again
-	private float iFrameCount;
+	private bool destroyed; //in a damaged state where you need to release all buttons before pressing any again
 
 	void Start () {
+		ExitExists = false;
 		IEnumerable<int> enumerable = Enumerable.Range(0, 25);
 		CurrentLetters = enumerable.ToList();
 		tiles = new Dictionary<Vector2, TileController> ();
@@ -39,7 +41,10 @@ public class GameControl : MonoBehaviour {
 		TilePrefab = (GameObject) Resources.Load ("Tile");
 
 		CreateTile (Vector2.zero, GenerationSeed);
-		damaged = false;
+		StartPos = Vector2.zero;
+		if (!ExitExists)
+			SpawnExit ();
+		destroyed = false;
 	
 		cam = gameObject.GetComponentInChildren<Camera> ();
 		CenterCamera ();
@@ -62,7 +67,7 @@ public class GameControl : MonoBehaviour {
 		if (!centered && shakeCount <= 0) {
 			CenterCamera ();
 		}
-		if (damaged && !(Input.anyKey))
+		if (destroyed && !(Input.anyKey))
 			StartCoroutine("IFrames");
 	}
 
@@ -75,7 +80,7 @@ public class GameControl : MonoBehaviour {
 
 	IEnumerator IFrames () {
 		yield return new WaitForSeconds(IFrameTime);
-		damaged = false;
+		destroyed = false;
 	}
 
 	public void CreateTile (Vector2 position, int n) {
@@ -145,16 +150,18 @@ public class GameControl : MonoBehaviour {
 	}
 
 	//apply damage and clear the player
-	public void Damage () {
-		if (damaged)
+	public void Damage (bool clearSnake) {
+		if (destroyed)
 			return;
 		shakeCount = ShakeTime;
-		damaged = true;
-		foreach (Vector2 pos in TilesWithPlayer) {
-			TileController t = GetTileAtPosition (pos);
-			t.playerAnim.SetBool ("exists", false);
+		if (clearSnake) {
+			destroyed = true;
+			foreach (Vector2 pos in TilesWithPlayer) {
+				TileController t = GetTileAtPosition (pos);
+				t.m_playerAnim.SetBool ("exists", false);
+			}
+			InitializePlayer ();
 		}
-		InitializePlayer ();
 	}
 
 	bool NextToEndOne (Vector2 testPos) {
@@ -185,13 +192,13 @@ public class GameControl : MonoBehaviour {
 
 	public void AddToPlayer (Vector2 pos) {
 		bool endOne = NextToEndOne (pos), endTwo = NextToEndTwo (pos), dontSetTwo = false;
-		Debug.Log (endOne + " " + endTwo);
+		//Debug.Log (endOne + " " + endTwo);
 		if (!ValidPlayerPosition (pos, endOne, endTwo)) {
-			Damage ();
-			GetTileAtPosition (pos).playerAnim.SetBool ("exists", false);
+			Damage (true);
+			GetTileAtPosition (pos).m_playerAnim.SetBool ("exists", false);
 			return;
 		}
-		GetTileAtPosition (pos).playerAnim.SetBool ("exists", true);
+		GetTileAtPosition (pos).m_playerAnim.SetBool ("exists", true);
 		if (PlayerEndOnePos == Null) {
 			PlayerEndOnePos = pos;
 			TilesWithPlayer.Add (pos);
@@ -205,42 +212,58 @@ public class GameControl : MonoBehaviour {
 		TileController tileOne = GetTileAtPosition (PlayerEndOnePos), tileTwo = GetTileAtPosition (PlayerEndTwoPos), newTile = GetTileAtPosition (pos);
 		if (endOne) {
 			if (pos.y == PlayerEndOnePos.y + 1) { //new player is north
-				tileOne.playerAnim.SetTrigger ("north");
-				newTile.playerAnim.SetTrigger ("south");
+				tileOne.m_playerAnim.SetTrigger ("north");
+				newTile.m_playerAnim.SetTrigger ("south");
 			} else if (pos.y == PlayerEndOnePos.y - 1) { //new player is south
-				tileOne.playerAnim.SetTrigger ("south");
-				newTile.playerAnim.SetTrigger ("north");
+				tileOne.m_playerAnim.SetTrigger ("south");
+				newTile.m_playerAnim.SetTrigger ("north");
 			} else if (pos.x == PlayerEndOnePos.x + 1) { //new player is east
-				tileOne.playerAnim.SetTrigger ("east");
-				newTile.playerAnim.SetTrigger ("west");
+				tileOne.m_playerAnim.SetTrigger ("east");
+				newTile.m_playerAnim.SetTrigger ("west");
 			} else {//if (pos.x == PlayerEndOnePos.x - 1) new player is west
-				tileOne.playerAnim.SetTrigger ("west");
-				newTile.playerAnim.SetTrigger ("east");
+				tileOne.m_playerAnim.SetTrigger ("west");
+				newTile.m_playerAnim.SetTrigger ("east");
 			}
 			if (!dontSetTwo) PlayerEndOnePos = pos;
 		} else { //if (endTwo)
 			if (pos.y == PlayerEndTwoPos.y + 1) { //new player is north
-				tileTwo.playerAnim.SetTrigger ("north");
-				newTile.playerAnim.SetTrigger ("south");
+				tileTwo.m_playerAnim.SetTrigger ("north");
+				newTile.m_playerAnim.SetTrigger ("south");
 			} else if (pos.y == PlayerEndTwoPos.y - 1) { //new player is south
-				tileTwo.playerAnim.SetTrigger ("south");
-				newTile.playerAnim.SetTrigger ("north");
+				tileTwo.m_playerAnim.SetTrigger ("south");
+				newTile.m_playerAnim.SetTrigger ("north");
 			} else if (pos.x == PlayerEndTwoPos.x + 1) { //new player is east
-				tileTwo.playerAnim.SetTrigger ("east");
-				newTile.playerAnim.SetTrigger ("west");
+				tileTwo.m_playerAnim.SetTrigger ("east");
+				newTile.m_playerAnim.SetTrigger ("west");
 			} else {//if (pos.x == PlayerEndTwoPos.x - 1) new player is west
-				tileTwo.playerAnim.SetTrigger ("west");
-				newTile.playerAnim.SetTrigger ("east");
+				tileTwo.m_playerAnim.SetTrigger ("west");
+				newTile.m_playerAnim.SetTrigger ("east");
 			}
 			PlayerEndTwoPos = pos;
 		}
 		TilesWithPlayer.Add (pos);
-		Debug.Log (PlayerEndOnePos);
-		Debug.Log (PlayerEndTwoPos);
+		//Debug.Log (PlayerEndOnePos);
+		//Debug.Log (PlayerEndTwoPos);
 		return;
 	}
 
-	public bool IsDamaged () {
-		return damaged;
+	public bool IsDestroyed () {
+		return destroyed;
+	}
+
+	public int PlayerLength () {
+		return TilesWithPlayer.Count ();
+	}
+
+	void SpawnExit () {
+		Dictionary<Vector2, TileController> grabBag = new Dictionary<Vector2, TileController>(tiles);
+		List<Vector2> posers = new List<Vector2> (grabBag.Keys);
+		grabBag.Remove(StartPos);
+
+		TileController choice = grabBag [posers [Random.Range (0, posers.Count - 1)]];
+		while (choice.BigN > 1)
+			choice = grabBag [posers [Random.Range (0, posers.Count - 1)]];
+
+		choice.SpawnEnemy (choice.BigN, true);
 	}
 }
