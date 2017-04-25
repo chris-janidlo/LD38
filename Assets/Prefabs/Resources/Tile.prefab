@@ -70,7 +70,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4062819747267852}
   - component: {fileID: 212234930468021664}
-  - component: {fileID: 95386618220507188}
+  - component: {fileID: 95766989277855680}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -150,7 +150,7 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
---- !u!95 &95386618220507188
+--- !u!95 &95766989277855680
 Animator:
   serializedVersion: 3
   m_ObjectHideFlags: 1
@@ -187,6 +187,7 @@ MonoBehaviour:
   DoorChance: 0.5
   HealChance: 0.1
   ReplaceChance: 0.2
+  BigN: 0
 --- !u!212 &212234930468021664
 SpriteRenderer:
   m_ObjectHideFlags: 1

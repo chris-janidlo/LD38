@@ -21,15 +21,16 @@ public class TileController : MonoBehaviour {
 	private GameObject playerPart;
 	private GameObject enemyPart;
 	private Animator enemyAnim;
-	private int letter;
-	private string letterS;
+	public int letter;
+	public string letterS;
 
 	public const int ENEMY_NONE = 0;
 	public const int ENEMY_DOOR = 1;
 	public const int ENEMY_HEAL = 2;
 	public const int ENEMY_REPLACE = 3;
+    public const int START_POINT = 4; //technically an an enemy, but can't hurt you
 	private int enemyLevel;
-	private int enemyType;
+	public int enemyType;
 
 	public void Initialize (Vector2 position, int n) {
 		BigN = n;
@@ -45,7 +46,13 @@ public class TileController : MonoBehaviour {
 		spriteR = gameObject.GetComponent<SpriteRenderer> ();
 		m_playerAnim = playerPart.GetComponent<Animator> ();
 		enemyAnim = enemyPart.GetComponent<Animator> ();
-		enemyType = ENEMY_NONE;
+        if (n == MainControlScript.GenerationSeed) {
+            enemyType = START_POINT;
+            enemyAnim.SetInteger("type", START_POINT);
+            enemyAnim.SetInteger("level", 0);
+        }
+        else
+            enemyType = ENEMY_NONE;
 
 		letter = MainControlScript.AssignLetter (position);
 		letterPart.GetComponent<SpriteRenderer> ().sprite = MainControlScript.LetterSprites [letter];
@@ -127,7 +134,7 @@ public class TileController : MonoBehaviour {
 				MainControlScript.CreateTile (pos, n - 1);
 		}
 
-		if (n < MainControlScript.GenerationSeed) //so you can't make an enemy on the home tile
+		if (enemyType == ENEMY_NONE) //so you can't make an enemy on the home tile
 			SpawnEnemy (n, false);
 	}
 
@@ -149,40 +156,59 @@ public class TileController : MonoBehaviour {
 		if (MainControlScript.IsDestroyed())
 			return;
 		if (Input.GetKeyDown (letterS)) {
-			//when the player initially occupies a tile
-			//playerAnim.SetBool ("exists", true);
-			MainControlScript.AddToPlayer (m_position);
-			if (enemyType != ENEMY_NONE) {
+            if (enemyType != START_POINT && MainControlScript.TilesWithPlayer.Count == 0)
+            {
+                Debug.Log("here");
+                MainControlScript.Damage(false);
+            }
+            else
+                MainControlScript.AddToPlayer(m_position);
+			if (enemyType != START_POINT && enemyType != ENEMY_NONE) {
 				if (MainControlScript.PlayerLength () <= enemyLevel)
 					MainControlScript.Damage (false);
 				else
-					GiveBenefits (enemyType);
+					MainControlScript.GiveBenefits (enemyType, m_position);
 				DestroyEnemy ();
 			}
 		} else if (Input.GetKey(letterS)) {
 			//while the player holds down on a tile
 		} else if (Input.GetKeyUp(letterS)) {
-			//when the player releases from a tile
-			m_playerAnim.SetBool ("exists", false);
-			MainControlScript.Damage (true);
+            //when the player releases from a tile
+            if (MainControlScript.Releases == 0)
+                MainControlScript.Damage(false);
+            else if (MainControlScript.TilesWithPlayer.Contains(m_position))
+            {
+                MainControlScript.InitializePlayer();
+                MainControlScript.Releases--;
+                enemyType = START_POINT;
+                enemyAnim.SetInteger("type", START_POINT);
+                enemyAnim.SetInteger("level", 0);
+                //MainControlScript.InitializePlayer ();
+            }
 		}
 	}
 
 	void DestroyEnemy () {
+		//Debug.Log ("dying");
+		enemyAnim.SetTrigger ("dead");
+
+		if (enemyType == ENEMY_DOOR)
+			MainControlScript.Exits--;
+
 		enemyType = ENEMY_NONE;
 		enemyAnim.SetInteger ("type", enemyType);
-		enemyAnim.SetTrigger ("dead");
 	}
 
 	//given generation n and knowing what the MainControlScript does, generate and animate an enemy
 	public void SpawnEnemy (int n, bool isDoor) {
+        if (enemyType != ENEMY_NONE) return; //we already have an enemy here, silly
 		bool chosen = false;
 		float rand = Random.Range (0.0f, 1.0f);
 
 		if (isDoor || (!chosen && n == 1 && DoorChance > rand)) {
 			enemyType = ENEMY_DOOR;
 			chosen = true;
-			MainControlScript.ExitExists = true;
+			MainControlScript.Exits++;
 		}
 
 		rand = Random.Range (0.0f, 1.0f);
@@ -211,6 +237,4 @@ public class TileController : MonoBehaviour {
 			enemyAnim.SetInteger ("level", enemyLevel);
 		}
 	}
-
-	public void GiveBenefits (int type){}
 }
